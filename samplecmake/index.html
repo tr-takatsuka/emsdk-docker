@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>emsdk docker sample Fibonacci</title>
+    <style>
+      #output {
+        width: 100%;
+        height: calc(100vh - 100px);
+        margin: 0 auto;
+        margin-top: 10px;
+        border-left: 0px;
+        border-right: 0px;
+        padding-left: 0px;
+        padding-right: 0px;
+        display: block;
+        background-color: black;
+        color: white;
+        font-family: 'Lucida Console', Monaco, monospace;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="output" rows="8"></textarea>
+    <br/>
+    <input type="number" id="count" value="100" min="1" max="10000" />
+    <button id="buttonTest">Fibonacci</button>
+    <script async type="text/javascript" src="./build/main.js"></script>
+    <script>
+      document.getElementById("buttonTest").addEventListener("click", () => {
+        const count = parseInt(document.getElementById("count").value);
+        const fibo = Module.testFibonacci(count);
+        document.getElementById("output").value += `\n${count} -> ${fibo}`;
+      });
+    </script>
+  </body>
+</html>
