@@ -14,6 +14,20 @@ WebAssembly compiler emscripten emsdk docker
   > docker build -t emsdk .
   ```
 
+### 環境変数
+  ```
+  ARG EMSCRIPTEN_VERSION=3.1.56
+  ARG BOOST_VERSION=1.84.0
+  ```
+  - カスタマイズ例
+    ```
+    > docker build \
+      --build-arg EMSCRIPTEN_VERSION=4.0.21 \
+      --build-arg BOOST_VERSION=1.89.0 \
+      -t emsdk .
+    ```
+
+
 ## example
 
 > 補足：Docker for Windows (且つ PowerShell) の場合は "\$(pwd)" を "\${pwd}" に置換すると動作すると思います。
