@@ -1,27 +1,27 @@
 FROM ubuntu:22.04
 
-RUN apt update \
- && apt -y upgrade \
- && apt clean && rm -rf /var/lib/apt/lists/*
+# Build arguments (customizable)
+ARG EMSCRIPTEN_VERSION=3.1.56
+ARG BOOST_VERSION=1.84.0
 
-# timezone Asia/Tokyo ############
-RUN apt update \
- && apt -y install tzdata \
- && apt clean && rm -rf /var/lib/apt/lists/*
-ENV TZ=Asia/Tokyo
+## timezone Asia/Tokyo ############
+#RUN apt update \
+# && apt -y install tzdata \
+# && apt clean && rm -rf /var/lib/apt/lists/*
+#ENV TZ=Asia/Tokyo
 
-# build-essential ####################
+# tools install ####################
 RUN apt update \
- && apt -y install --no-install-recommends build-essential \
- && apt clean && rm -rf /var/lib/apt/lists/*
-
-# tools ##########################
-RUN apt update \
- && apt -y install git cmake wget python3 \
+ && apt -y install --no-install-recommends \
+  build-essential \
+  git \
+  cmake \
+  wget \
+  ca-certificates \
+  python3 \
  && apt clean && rm -rf /var/lib/apt/lists/*
 
 # emscripten ##########################
-ARG EMSCRIPTEN_VERSION=3.1.56
 ARG EMSDKDIR=/opt/emsdk
 RUN git clone https://github.com/emscripten-core/emsdk.git ${EMSDKDIR}
 RUN cd ${EMSDKDIR} \
@@ -34,16 +34,26 @@ ENTRYPOINT ["/opt/entrypoint.sh"]
 
 
 # boost ##########################
-ARG BOOST_VERSION=1.84.0
-RUN wget https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}.tar.xz \
- && tar xvf boost-${BOOST_VERSION}.tar.xz \
- && cd boost-${BOOST_VERSION} \
- && ./bootstrap.sh \
- && ./b2 headers \
- && mkdir -p /opt/include \
- && cp -rl boost /opt/include/boost/ \
- && cd ..\
- && rm -f boost*.tar.xz \
- && rm -rf boost-${BOOST_VERSION} 
+RUN set -eux; \
+    # 1:～1.84.0 2:1.85.0～
+    FILE1="boost-${BOOST_VERSION}.tar.xz"; \
+    FILE2="boost-${BOOST_VERSION}-b2-nodocs.tar.xz"; \
+    BASEURL="https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}"; \
+    \
+    # まず旧形式、ダメなら新形式
+    (wget -q "${BASEURL}/${FILE1}" -O boost.tar.xz || wget -q "${BASEURL}/${FILE2}" -O boost.tar.xz); \
+    \
+    # 展開してフォルダ名を取得
+    tar xvf boost.tar.xz; \
+    DIR=$(tar tf boost.tar.xz | head -1 | cut -d/ -f1); \
+    \
+    cd "${DIR}"; \
+    ./bootstrap.sh; \
+    ./b2 headers; \
+    mkdir -p /opt/include; \
+    cp -rl boost /opt/include/boost/; \
+    cd ..; \
+    rm -f boost.tar.xz; \
+    rm -rf "${DIR}"
 ENV EMCC_CFLAGS="-I /opt/include"
 
