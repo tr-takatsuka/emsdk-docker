@@ -30,6 +30,13 @@ WebAssembly compiler emscripten emsdk docker
 
 ## example
 
+  ```
+  > docker run --rm -it emsdk "emcc --version"
+  ```
+  ```
+  > docker run --rm -it emsdk "emsdk list"
+  ```
+
 > 補足：Docker for Windows (且つ PowerShell) の場合は "\$(pwd)" を "\${pwd}" に置換すると動作すると思います。
 
 - run emcc & server
